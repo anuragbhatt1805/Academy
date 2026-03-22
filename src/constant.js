@@ -21,3 +21,12 @@ export const CORS_ORIGIN =
   process.env.NODE_ENV !== "production"
     ? [...envOrigins, "http://localhost:5173"]
     : envOrigins;
+
+// JWT Secret
+export const ACCESS_TOKEN_SECRET =
+  envObject.ACCESS_TOKEN_SECRET || "fallback_secret";
+export const REFRESH_TOKEN_SECRET =
+  envObject.REFRESH_TOKEN_SECRET || "fallback_secret";
+
+export const ACCESS_TOKEN_EXPIRY = envObject.ACCESS_TOKEN_EXPIRY || "15m";
+export const REFRESH_TOKEN_EXPIRY = envObject.REFRESH_TOKEN_EXPIRY || "7d";

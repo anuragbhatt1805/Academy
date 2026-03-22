@@ -3,6 +3,8 @@ import cors from "cors";
 
 import { CORS_ORIGIN } from "./constant.js";
 import logger from "./utils/logger.util.js";
+import { cookieParser } from "./middlewares/cookie.middleware.js";
+import userRouter from "./routes/user.route.js";
 
 // Initialize express app
 const app = express();
@@ -15,6 +17,12 @@ app.use(
     credentials: true,
   }),
 );
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser);
+
+// Routes
+app.use("/api/users", userRouter);
 
 // Health check route
 app.get("/health", (req, res) => {
