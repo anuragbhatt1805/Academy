@@ -30,3 +30,6 @@ export const REFRESH_TOKEN_SECRET =
 
 export const ACCESS_TOKEN_EXPIRY = envObject.ACCESS_TOKEN_EXPIRY || "15m";
 export const REFRESH_TOKEN_EXPIRY = envObject.REFRESH_TOKEN_EXPIRY || "7d";
+
+// Salesforce
+export const SALESFORCE_USERINFO_URL = envObject.SALESFORCE_USERINFO_URL || "https://login.salesforce.com/services/oauth2/userinfo";
