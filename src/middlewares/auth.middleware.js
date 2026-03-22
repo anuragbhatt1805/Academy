@@ -11,12 +11,14 @@ export const protect = async (req, res, next) => {
 
       if (!decoded) {
         logger.warn("Token validation failed");
-        return res.status(401).json({ message: "Not authorized, token failed" });
+        return res
+          .status(401)
+          .json({ message: "Not authorized, token failed" });
       }
 
-      req.user = await User.findById(decoded.id).select(
-        "-password -resetPasswordOnLogin -refreshToken",
-      );
+      req.user = await User.findById(decoded.id)
+        .select("-password -refreshToken")
+        .lean();
 
       if (!req.user) {
         logger.warn("Token valid but user not found", { userId: decoded.id });
@@ -25,10 +27,32 @@ export const protect = async (req, res, next) => {
           .json({ message: "Not authorized, user not found" });
       }
 
+      // Block access to everything except own password update if reset is required
+      const isPasswordUpdateRoute =
+        req.originalUrl.split("?")[0] === "/api/users/password" &&
+        req.method === "PUT";
+
+      if (req.user.resetPasswordOnLogin && !isPasswordUpdateRoute) {
+        logger.warn(
+          "User attempted action without resetting mandatory password",
+          { userId: req.user._id },
+        );
+        return res
+          .status(403)
+          .json({ message: "Please reset your password to continue" });
+      }
+
+      const { resetPasswordOnLogin, ...safeUser } = req.user;
+      req.user = safeUser;
+
       next();
     } catch (error) {
-      logger.error("Error internally in auth middleware", { error: error.message });
-      return res.status(500).json({ message: "Server error in auth middleware" });
+      logger.error("Error internally in auth middleware", {
+        error: error.message,
+      });
+      return res
+        .status(500)
+        .json({ message: "Server error in auth middleware" });
     }
   } else {
     logger.warn("Not authorized, no token provided in cookies");

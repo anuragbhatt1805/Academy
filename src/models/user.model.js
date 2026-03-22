@@ -35,7 +35,7 @@ const userSchema = new mongoose.Schema(
       default: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // Hash password before saving
@@ -56,12 +56,12 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
 };
 
 // Exclude sensitive details from JSON responses
-userSchema.methods.toJSON = function () {
-  const userObject = this.toObject();
-  delete userObject.password;
-  delete userObject.resetPasswordOnLogin;
-  delete userObject.refreshToken;
-  return userObject;
-};
+userSchema.set("toJSON", {
+  transform: function (doc, ret) {
+    const { password, refreshToken, resetPasswordOnLogin, __v, ...safeUser } =
+      ret;
+    return safeUser;
+  },
+});
 
 export const User = mongoose.model("User", userSchema);
